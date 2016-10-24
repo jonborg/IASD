@@ -95,7 +95,7 @@ def un_load(G, current):
 	else:
 		
 		load=current.state_space[1]
-		if G.stack[current.state_space[0]][0]
+		if G.stack[current.state_space[0]][0]:
 			G.stack[current.state_space[0]].append(load)
 			ss=[current.state_space[0],"",current.state_space[2]+1]
 			setup=[ss,current.state_space,[],current.depth+1,current.gx+1+G.cask[load][1],["UNLOAD",load,current.state_space[0],1+G.stack[load][1]]]

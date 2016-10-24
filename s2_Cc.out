@@ -1,0 +1,17 @@
+move EXIT C 1.0
+move C B 1.0
+move B S2 1.0
+load Cd S2 1.0
+move S2 B 1.0
+move B A 1.0
+move A S11 1.0
+unload Cd S11 1.0
+move S11 A 1.0
+move A B 1.0
+move B S2 1.0
+load Cc S2 1.0
+move S2 B 1.0
+move B C 1.0
+move C EXIT 1.0
+15.0
+

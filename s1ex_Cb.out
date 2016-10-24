@@ -1,0 +1,17 @@
+move EXIT C 2.0
+move C D 0.3999999999999999
+move D A 1.5
+move A S1 1.0000000000000004
+load Ca S1 3.0
+move S1 A 3.0
+move A S11 4.5
+unload Ca S11 2.9999999999999982
+move S11 A 1.5
+move A S1 1.0
+load Cb S1 2.5
+move S1 A 2.5
+move A D 3.75
+move D C 1.0
+move C EXIT 5.0
+35.65
+

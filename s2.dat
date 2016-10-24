@@ -1,0 +1,26 @@
+
+Ca 4 0
+Cb 4 0
+Cc 4 0
+Cd 3 0
+Ce 4 0
+Cf 2 0
+
+S1  8 Ca Cb
+S2  8 Cc Cd
+S3  8 Ce Cf
+S11 3
+S12 3
+
+E S1 A 1
+E S2 B 1
+E S3 C 1
+E S11 A 1
+E A B 1
+E B C 1
+E C EXIT 1
+E A D 1
+E B D 1
+E C D 1
+E S12 D 1
+
