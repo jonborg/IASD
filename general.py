@@ -185,14 +185,17 @@ def print_output(final,closed_list):
                 break
         current = closed_list[index]
 
-    f = open('results.txt','wt')
+    sys.stdout = open('results.txt','wt')
+    #f = open('results.txt','wt')
     
     while commands != []:
         line = commands.pop()
-        f.write(str(line))
-        f.write("\n")
-    f.write(str(final.gx))
-    f.close()
+        print(*line)
+        #f.write(str(line))
+        #f.write("\n")
+    print(final.gx)
+    #f.write(str(final.gx))
+    #f.close()
 
 
 
