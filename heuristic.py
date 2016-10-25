@@ -1,4 +1,5 @@
 import sys
+import copy
 
 class graph:
     def __init__(self):
@@ -9,8 +10,8 @@ class graph:
     def add_cask(self,id,l,w):
         self.cask[id]=[float(l),float(w)]
         
-    def add_stack(self,id,S,s=0,c=[]):
-        self.stack[id]=[float(S),float(s),c]
+    def add_stack(self,id,S,c=[]):
+        self.stack[id]=[float(S),c]
 
     def add_node(self,node,neighbour,cost):
         self.node.update({node:{neighbour:float(cost)}})
@@ -28,6 +29,7 @@ class state_node:
         self.gx=float(setup[4]) #total cost until current node
         self.hx=float(setup[5])
         self.last_op=setup[6]    #[op,arg1,arg2,cost]
+        self.stack_status=setup[7] #{Stack: occupied space}
     
     def show(self):
         print()
@@ -74,7 +76,7 @@ def open_file(file):
             G.add_cask(w[0],w[1],w[2])
         if i[0]=="S": #stack
             if len(w)>2:
-                G.add_stack(w[0],w[1],float(0),w[2:len(w)])
+                G.add_stack(w[0],w[1],w[2:len(w)])
             else:
                 G.add_stack(w[0],w[1])
         if i[0]=="E": #edge
@@ -88,11 +90,7 @@ def open_file(file):
             else:
                 G.add_node(w[2],w[1],w[3])
 
-    f.close()
-    for stack in G.stack.keys():
-        for cask in G.stack[stack][2]:
-            G.stack[stack][1]=G.stack[stack][1]+G.cask[cask][0]
-       
+    f.close()    
     return G
 
     
@@ -101,34 +99,53 @@ def open_file(file):
 
         
 def un_load(G, current,open_list, closed_list):
-    if current.state_space[1] is "": #No cask in robot
-        if G.stack[current.state_space[0]][2]==[]: #Se não tiver casks no stack
-            return []
-        else: #Se tiver casks no stack
-            load=G.stack[current.state_space[0]][2].pop()  #faz load da cask do topo da pilha          
-            ss=[current.state_space[0],load,current.state_space[2]+1]
-            if any (node.state_space==ss for node in (open_list+closed_list)):
-                G.stack[current.state_space[0]].append(load)
+    if current.state_space[1] is "": #No cask in robot-LOAD
+        if current.last_op[0] != "unload":
+            if current.stack_status[current.state_space[0]][1]==[]: #Se não tiver casks no stack
                 return []
+            else: #Se tiver casks no stack
+                new_status=copy.deepcopy(current.stack_status)
+                load=new_status[current.state_space[0]][1].pop()  #faz load da cask do topo da pilha          
+                new_status[current.state_space[0]][0]=new_status[current.state_space[0]][0]-G.cask[load][0]
+                
+                
+                ss=[current.state_space[0],load,current.state_space[2]+1]
+                if any (node.state_space==ss for node in (open_list+closed_list)):               
+                    return []
+                else:
+                    if current.state_space[0]==stack_loc:
+                        hcost=current.hx-(1+min_w)
+                    else:
+                        hcost=current.hx+(1+min_w)
+                    setup=[ss,current.state_space,[],current.depth+1,current.gx+1+G.cask[load][1],hcost,["load",load,current.state_space[0],1+G.cask[load][1]],new_status]
+                    new=state_node(setup)
+                    return new
+        else:
+            return[]
+
+    else: # O robo tem uma cask consigo_UNLOAD
+        if current.last_op[0] != "load":
+            load=current.state_space[1]
+            print()
+            print("STACK STATUS")
+            print(current.stack_status)
+            print()
+            if G.stack[current.state_space[0]][0]>=current.stack_status[current.state_space[0]][0]+G.cask[load][0] : # verifica se ha espaco na stack
+                new_status=copy.deepcopy(current.stack_status)
+                new_status[current.state_space[0]][0]=new_status[current.state_space[0]][0]+G.cask[load][0]
+                new_status[current.state_space[0]][1].append(load)
+                
+                ss=[current.state_space[0],"",current.state_space[2]+1]
+
+                if any (node.state_space==ss for node in (open_list + closed_list)):
+                    return[]
+                else:
+                    hcost=current.hx-(1+min_w)
+                    setup=[ss,current.state_space,[],current.depth+1,current.gx+1+G.cask[load][1],hcost,["unload",load,current.state_space[0],1+G.cask[load][1]],new_status]
+                    new=state_node(setup)
+                    return new
             else:
-                print(load)
-                hcost=current.hx-(1+min_w)
-                setup=[ss,current.state_space,[],current.depth+1,current.gx+1+G.cask[load][1],hcost,["load",load,current.state_space[0],1+G.cask[load][1]]]
-                new=state_node(setup)
-                return new
-    else: # O robo tem uma cask consigo
-        load=current.state_space[1]
-        if G.stack[current.state_space[0]][0]>=G.stack[current.state_space[0]][1]+G.cask[load][0]: # verifica se ha espaco na stack
-            G.stack[current.state_space[0]].append(load)
-            ss=[current.state_space[0],"",current.state_space[2]+1]
-            if any (node.state_space==ss for node in (open_list + closed_list)):
-                G.stack[current.state_space[0]].pop()
                 return[]
-            else:
-                hcost=current.hx-(1+min_w)
-                setup=[ss,current.state_space,[],current.depth+1,current.gx+1+G.cask[load][1],hcost,["unload",load,current.state_space[0],1+G.cask[load][1]]]
-                new=state_node(setup)
-                return new
         else:
             return[]
         
@@ -140,12 +157,13 @@ def move(G,current,dest,cost,open_list):
     else:
         gcost=(1+G.cask[current.state_space[1]][1])*cost
     hcost=current.hx
-
-    setup=[[dest,current.state_space[1],current.state_space[2]],current.state_space,[],current.depth+1,current.gx+gcost,hcost,["move",current.state_space[0],dest,gcost,hcost]]
+    print("MOVE" ,current.stack_status)
+    setup=[[dest,current.state_space[1],current.state_space[2]],current.state_space,[],current.depth+1,current.gx+gcost,hcost,["move",current.state_space[0],dest,gcost,hcost],current.stack_status]
     new=state_node(setup)
     if any (node.state_space==new.state_space for node in open_list):
         for i,j in enumerate(open_list):
-            if j.gx+j.gx>new.gx+new.hx:
+            
+            if j.gx+j.hx>new.gx+new.hx:
                 if j.state_space==new.state_space:
                     open_list.pop(i)
                     current.children=[new.state_space]
@@ -184,7 +202,11 @@ def print_output(final,closed_list):
             if item.state_space == current.parent:
                 break
         current=closed_list[index]
-    sys.stdout=open('results.dat','w')
+
+    output_f=sys.argv[1].replace(".dat","")
+    print(output_f)
+    output_f=output_f+"_"+sys.argv[2]+".out"
+    sys.stdout=open(output_f,'w')
     while commands!=[]:
         line=commands.pop()
         print(line[0],line[1],line[2],line[3])
@@ -199,14 +221,16 @@ def hx_parameters(G):
     global ind
     global n_cask_objective
     global min_w
+    global stack_loc
     min_w=-1
 
     for stack in G.stack.keys(): # for future heuristic functions that may need the location of tha goal cask in the stack
-        casks=G.stack[stack][2]
+        casks=G.stack[stack][1]
         for cask in casks:
             if cask==sys.argv[2]:
-                ind=G.stack[stack][2].index(sys.argv[2])
+                ind=G.stack[stack][1].index(sys.argv[2])
                 n_cask_objective=len(casks)
+                stack_loc=stack
     for cask in G.cask.keys():
         if G.cask[cask][1]<min_w:
             min_w=G.cask[cask][1]
@@ -228,11 +252,18 @@ def main():
     print(G.node)
     
     hx_parameters(G)
-
-    open_list=[state_node([["EXIT","",0],[],[],0,0,(1+min_w)*(2*(n_cask_objective-ind)-1),[]])]
+    init_stack_occupied={}
+    for stack in G.stack.keys():
+        init_stack_occupied[stack]=[0, []]
+        for cask in G.stack[stack][1]:
+            
+            init_stack_occupied[stack][0]=init_stack_occupied[stack][0]+G.cask[cask][0]
+            init_stack_occupied[stack][1].append(cask)
+   
+    open_list=[state_node([["EXIT","",0],[],[],0,0,(1+min_w)*(2*(n_cask_objective-ind)-1),[],init_stack_occupied])]
     closed_list=[]
     while 1:
-        a=input("waiting: ")
+        #a=input("waiting: ")
         if len(open_list)==0:
             print()
             print("FAILURE")
@@ -244,9 +275,8 @@ def main():
             print()
             print("FINISH!!!")
             print(current.state_space)
-            print(ind)
-            print(min_w)
-            print(n_cask_objective)
+            print("Number of nodes opened: ", end="")
+            print(len(closed_list))
             print_output(current,closed_list)
             return
         closed_list.append(current)
@@ -258,13 +288,13 @@ def main():
         print("Open List:")
         print("----------------------")      
         for node in open_list:
-            print("{} <-- {}".format(node.state_space,node.parent))    
+            print("{} <-- {} h= {}".format(node.state_space,node.parent,node.stack_status))    
         print("----------------------")
         print()
         print("Closed List:")
         print("----------------------")      
         for node in closed_list:
-            print("{} <-- {}".format(node.state_space,node.parent))    
+            print("{} <-- {} h= {}".format(node.state_space,node.parent,node.stack_status))    
         print("----------------------")
         
         for node in open_list:
