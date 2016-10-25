@@ -185,17 +185,16 @@ def print_output(final,closed_list):
                 break
         current = closed_list[index]
 
-    sys.stdout = open('results.txt','wt')
-    #f = open('results.txt','wt')
+    f = open('results.txt','wt')
     
     while commands != []:
         line = commands.pop()
-        print(*line)
+        print(*line, sep=' ', file=f)
         #f.write(str(line))
         #f.write("\n")
-    print(final.gx)
+    print(final.gx, file=f)
     #f.write(str(final.gx))
-    #f.close()
+    f.close()
 
 
 
@@ -225,7 +224,7 @@ def main():
             return
             
         #current = open_list.pop()   # TODO: replace by search method
-        current = uninformed.choose_next_node(open_list)
+        current = uninformed.choose_next_node(open_list, closed_list)
         print()
         print (current.state_space)
         
