@@ -114,7 +114,7 @@ def unload(G, current, open_list, closed_list):
     if current.state_space[1] is "": # no cask on robot
         if G.stack[current.state_space[0]][2]==[]: # no casks on stack
             return []
-        else: # has casks on stack
+        else: # has casks on stack and 
             load = G.stack[current.state_space[0]][2].pop()  # load cask from top of stack on robot
             ss = [current.state_space[0], load, current.state_space[2]+1]
             if any (node.state_space==ss for node in (open_list+closed_list)):
