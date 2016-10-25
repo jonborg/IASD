@@ -155,10 +155,12 @@ def move(G,current,dest,cost):
 
 
 
-def find_children(G,current,open_list,closed_list):
+def find_children(G, current, open_list, closed_list):
+    """Appends children from current node to open_list, as per the general search algorithm"""
+    
     children = []
     if current.state_space[0] in G.stack.keys():
-        children = unload(G, current, open_list, closed_list)
+        children = unload(G, current, open_list, closed_list)   # ?????
         if children == []:
             pass
         else:
@@ -225,6 +227,7 @@ def main():
         current = uninformed.choose_next_node(open_list, closed_list)
         print()
         print (current.state_space)
+        print("Action: " + str(current.last_op))
         
         if current.state_space[0:2] == ["EXIT",sys.argv[2]]:    # args: 'python', 'general.py', 's1.dat', 'Cb'
             print()
@@ -232,7 +235,8 @@ def main():
             print(current.state_space)
             print_output(current, closed_list)
             return
-            
+        
+
         closed_list.append(current)
         print()
         print("Open List:")
