@@ -58,7 +58,6 @@ class state_node:
 
 
 
-
 def open_file(file):
     """reads input file and creates graph of the problem"""
 
@@ -101,6 +100,8 @@ def open_file(file):
 
         
 def unload(G, current,open_list, closed_list):
+    """load cask to robot or unload cask on robot to a given stack"""
+    
     if current.state_space[1] is "": # no cask on robot
         if G.stack[current.state_space[0]][2]==[]: # no casks on stack
             return []
@@ -132,6 +133,7 @@ def unload(G, current,open_list, closed_list):
         
         
 def move(G,current,dest,cost):
+    """move robot from current location to adjacent node"""
     
     # get total cost
     if current.state_space[1] == "":
@@ -186,14 +188,10 @@ def print_output(final,closed_list):
         current = closed_list[index]
 
     f = open('results.txt','wt')
-    
     while commands != []:
         line = commands.pop()
         print(*line, sep=' ', file=f)
-        #f.write(str(line))
-        #f.write("\n")
     print(final.gx, file=f)
-    #f.write(str(final.gx))
     f.close()
 
 
@@ -223,7 +221,7 @@ def main():
             print("FAILURE")
             return
             
-        #current = open_list.pop()   # TODO: replace by search method
+        #current = open_list.pop()
         current = uninformed.choose_next_node(open_list, closed_list)
         print()
         print (current.state_space)
