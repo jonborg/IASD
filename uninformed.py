@@ -14,13 +14,9 @@ def choose_next_node(open_list, closed_list):
             selected_node = node
     
     # send nodes with the same state but with higher cost to closed list
-    for node in open_list:
-        if ( (node.state_space[:2] == selected_node.state_space[:2]) and (node != selected_node) ):
-            closed_list.append(node)
-    
-    # expand this node
-#    for c in selected_node.children:
-#        open_list.append(c)
+#    for node in open_list:
+#        if ( (node.state_space[:2] == selected_node.state_space[:2]) and (node != selected_node) ):
+#            closed_list.append(node)
     
     open_list.remove(selected_node)
     return selected_node

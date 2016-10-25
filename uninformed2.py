@@ -161,8 +161,20 @@ def move(G, current, dest, cost):
     new = state_node(setup)
     current.children = [new.state_space]
     return new
+    
+    
+    
 
-
+def belong_to_open_list(open_list, closed_list, child):
+    """Checks if child exists in open_list"""
+    
+    if child in open_list:
+        return True
+    else:
+        return False
+        
+        
+        
 
 def find_children(G, current, open_list, closed_list):
     """Appends children from current node to open_list, 
@@ -179,17 +191,27 @@ def find_children(G, current, open_list, closed_list):
         if children == []:
             pass
         else:
-            open_list.append(children)
+            # need to send child to closed_list if duplicate already exists in 
+            # open_list
+            if not belong_to_open_list(open_list, closed_list, children):
+                open_list.append(children)
+            else:
+                closed_list.append(children)
     
     # iterate through the neighbours of current node to see if
     # any children result from the move action
     for neighbour in G.node[current.state_space[0]]:
-        children = []
         if any (node.state_space == [str(neighbour), current.state_space[1], current.state_space[2]] for node in (open_list + closed_list)):
             pass
         else:
             children = move(G, current, str(neighbour), G.node[current.state_space[0]][str(neighbour)])
-            open_list.append(children)
+            # need to send child to closed_list if duplicate already exists in 
+            # open_list
+            if not belong_to_open_list(open_list, closed_list, children):
+                open_list.append(children)
+            else:
+                closed_list.append(children)
+        
     return open_list
 
 
