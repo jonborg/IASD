@@ -1,3 +1,5 @@
+
+
 import sys
 import time
 
@@ -139,7 +141,7 @@ def unload(G, current, open_list, closed_list):
             return[]
         
         
-def move(G,current,dest,cost):
+def move(G, current, dest, cost):
     """move robot from current location to adjacent node"""
     
     # get total cost
@@ -163,15 +165,24 @@ def move(G,current,dest,cost):
 
 
 def find_children(G, current, open_list, closed_list):
-    """Appends children from current node to open_list, as per the general search algorithm"""
+    """Appends children from current node to open_list, 
+    as per the general search algorithm"""
     
     children = []
-    if current.state_space[0] in G.stack.keys():
-        children = unload(G, current, open_list, closed_list)   # ?????
+
+    # to expand the children, we need to see if we are in a stack node
+    # if so,  then we can either load or unload (or move)
+    # the unload function will give us all the children that result
+    # in either a load action or unload action
+    if current.state_space[0] in G.stack.keys():    # current node is a stack
+        children = unload(G, current, open_list, closed_list)
         if children == []:
             pass
         else:
             open_list.append(children)
+    
+    # iterate through the neighbours of current node to see if
+    # any children result from the move action
     for neighbour in G.node[current.state_space[0]]:
         children = []
         if any (node.state_space == [str(neighbour), current.state_space[1], current.state_space[2]] for node in (open_list + closed_list)):

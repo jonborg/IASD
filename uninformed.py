@@ -1,6 +1,7 @@
 from general import *
 
-# trying to implement uniform cost, this way we can garantee optimality
+# trying to implement uniform cost, this way we can garantee optimality with
+# a resonable complexity
 
 def choose_next_node(open_list, closed_list):
     """Apply Uniform cost algorithm to choose next node/step in tree"""
@@ -18,8 +19,8 @@ def choose_next_node(open_list, closed_list):
             closed_list.append(node)
     
     # expand this node
-    for c in selected_node.children:
-        open_list.append(c)
+#    for c in selected_node.children:
+#        open_list.append(c)
     
     open_list.remove(selected_node)
     return selected_node
