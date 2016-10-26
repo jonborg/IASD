@@ -3,12 +3,12 @@ move C S3 1.0
 load Cf S3 1.0
 unload Cf S3 1.0
 move S3 C 1.0
-move C D 1.0
-move D A 1.0
+move C B 1.0
+move B A 1.0
 move A S1 1.0
 load Ca S1 1.0
 move S1 A 1.0
-move A D 1.0
-move D C 1.0
+move A B 1.0
+move B C 1.0
 move C EXIT 1.0
 13.0
