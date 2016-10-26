@@ -1,5 +1,6 @@
 import sys
 import copy
+import time
 
 class graph:
     def __init__(self):
@@ -70,7 +71,6 @@ def open_file(file):
 
     for x in lines:
         w=x.split()
-        print(w)
         i=list(x)
         if i[0]=="C": #cask
             G.add_cask(w[0],w[1],w[2])
@@ -126,10 +126,6 @@ def un_load(G, current,open_list, closed_list):
     else: # O robo tem uma cask consigo_UNLOAD
         if current.last_op[0] != "load":
             load=current.state_space[1]
-            print()
-            print("STACK STATUS")
-            print(current.stack_status)
-            print()
             if G.stack[current.state_space[0]][0]>=current.stack_status[current.state_space[0]][0]+G.cask[load][0] : # verifica se ha espaco na stack
                 new_status=copy.deepcopy(current.stack_status)
                 new_status[current.state_space[0]][0]=new_status[current.state_space[0]][0]+G.cask[load][0]
@@ -157,7 +153,6 @@ def move(G,current,dest,cost,open_list):
     else:
         gcost=(1+G.cask[current.state_space[1]][1])*cost
     hcost=current.hx
-    print("MOVE" ,current.stack_status)
     setup=[[dest,current.state_space[1],current.state_space[2]],current.state_space,[],current.depth+1,current.gx+gcost,hcost,["move",current.state_space[0],dest,gcost,hcost],current.stack_status]
     new=state_node(setup)
     if any (node.state_space==new.state_space for node in open_list):
@@ -203,9 +198,7 @@ def print_output(final,closed_list):
                 break
         current=closed_list[index]
 
-    output_f=sys.argv[1].replace(".dat","")
-    print(output_f)
-    output_f=output_f+"_"+sys.argv[2]+".out"
+    output_f=sys.argv[1].replace(".dat","")+"_"+sys.argv[2]+".out"
     sys.stdout=open(output_f,'w')
     while commands!=[]:
         line=commands.pop()
@@ -223,7 +216,7 @@ def hx_parameters(G):
     global min_w
     global stack_loc
     min_w=-1
-
+    i=1
     for stack in G.stack.keys(): # for future heuristic functions that may need the location of tha goal cask in the stack
         casks=G.stack[stack][1]
         for cask in casks:
@@ -231,6 +224,13 @@ def hx_parameters(G):
                 ind=G.stack[stack][1].index(sys.argv[2])
                 n_cask_objective=len(casks)
                 stack_loc=stack
+                i=0
+    if i:
+        print()
+        output_f=sys.argv[1].replace(".dat","")+"_"+sys.argv[2]+".out"
+        sys.stdout=open(output_f,'w')
+        sys.exit("The cask is not in any stack.")
+        
     for cask in G.cask.keys():
         if G.cask[cask][1]<min_w:
             min_w=G.cask[cask][1]
@@ -243,13 +243,14 @@ def hx_parameters(G):
 
     
 def main():
+    time.clock()
     G=open_file(sys.argv[1])
-    print()     
+    """print()     
     print(G.cask)
     print()     
     print(G.stack)
     print()     
-    print(G.node)
+    print(G.node)"""
     
     hx_parameters(G)
     init_stack_occupied={}
@@ -269,14 +270,18 @@ def main():
             print("FAILURE")
             return
         current=open_list.pop()
-        print()
-        print (current.state_space)
+        """print()
+        print (current.state_space)"""
         if current.state_space[0:2] == ["EXIT",sys.argv[2]]:
             print()
             print("FINISH!!!")
             print(current.state_space)
+            print("Total cost: ",end="")
+            print(current.gx)
             print("Number of nodes opened: ", end="")
             print(len(closed_list))
+            print("Time taken: ",end="")
+            print(time.clock())
             print_output(current,closed_list)
             return
         closed_list.append(current)
@@ -284,7 +289,7 @@ def main():
         open_list=find_children(G,current,open_list,closed_list)
         open_list.sort(key=lambda node: node.gx+node.hx,reverse=True)
         
-        print()
+        """print()
         print("Open List:")
         print("----------------------")      
         for node in open_list:
@@ -299,6 +304,6 @@ def main():
         
         for node in open_list:
             print(node.gx+node.hx)        
-        
+        """
 if __name__ == "__main__":
     main()
