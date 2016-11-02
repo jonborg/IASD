@@ -10,6 +10,7 @@ class state_node:
         self.stack_status = setup[7]            # {Stack: occupied space}
     
     def show(self):
+        """Prints node information for debugging"""
         print()
         print("-------------------------")
         print("Space State: ",end="")
@@ -28,11 +29,4 @@ class state_node:
         print()
 
 
-def belong_to_open_list(open_list, closed_list, child):
-    """Checks if child exists in open_list"""
-    
-    if child in open_list:
-        return True
-    else:
-        return False
 

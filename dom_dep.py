@@ -68,9 +68,6 @@ def print_output(final, closed_list):
                 break
         current = closed_list[index]
 
-    output_f=sys.argv[1].replace(".dat","")+"_"+sys.argv[2]+".out"
-    sys.stdout=open(output_f,'w')
-
     while commands != []:
         line = commands.pop()
         print(line[0], line[1], line[2], line[3])
